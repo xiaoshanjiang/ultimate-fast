@@ -4,8 +4,8 @@ from fastapi.templating import Jinja2Templates
 from typing import Optional, Any
 from pathlib import Path
 
-from schemas import RecipeSearchResults, Recipe, RecipeCreate
-from recipe_data import RECIPES
+from app.schemas import RecipeSearchResults, Recipe, RecipeCreate
+from app.recipe_data import RECIPES
 
 
 BASE_PATH = Path(__file__).resolve().parent
@@ -90,4 +90,4 @@ if __name__ == "__main__":
     # Use this for debugging purposes only
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8001, log_level="debug", reload=True)
+    uvicorn.run(app, host="0.0.0.0", port=8001, log_level="debug")

@@ -15,6 +15,10 @@ Jinja2 = "^3.0.2"
 
 [tool.poetry.dev-dependencies]
 
+[tool.poetry.scripts]
+poetry-test = "poetry_test.console:main"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
