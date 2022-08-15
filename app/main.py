@@ -1,9 +1,15 @@
-from fastapi import FastAPI, APIRouter, Query, HTTPException
+from fastapi import FastAPI, APIRouter, Query, HTTPException, Request
+from fastapi.templating import Jinja2Templates
 
 from typing import Optional, Any
+from pathlib import Path
 
-from app.schemas import RecipeSearchResults, Recipe, RecipeCreate
-from app.recipe_data import RECIPES
+from schemas import RecipeSearchResults, Recipe, RecipeCreate
+from recipe_data import RECIPES
+
+
+BASE_PATH = Path(__file__).resolve().parent
+TEMPLATES = Jinja2Templates(directory=str(BASE_PATH / "templates"))
 
 
 app = FastAPI(title="Recipe API", openapi_url="/openapi.json")
@@ -11,16 +17,20 @@ app = FastAPI(title="Recipe API", openapi_url="/openapi.json")
 api_router = APIRouter()
 
 
+# Updated to serve a Jinja2 template
+# https://www.starlette.io/templates/
+# https://jinja.palletsprojects.com/en/3.0.x/templates/#synopsis
 @api_router.get("/", status_code=200)
-def root() -> dict:
+def root(request: Request) -> dict:
     """
     Root GET
     """
-    return {"msg": "Hello, World!"}
+    return TEMPLATES.TemplateResponse(
+        "index.html",
+        {"request": request, "recipes": RECIPES},
+    )
 
 
-# Updated with error handling
-# https://fastapi.tiangolo.com/tutorial/handling-errors/
 @api_router.get("/recipe/{recipe_id}", status_code=200, response_model=Recipe)
 def fetch_recipe(*, recipe_id: int) -> Any:
     """
@@ -80,4 +90,4 @@ if __name__ == "__main__":
     # Use this for debugging purposes only
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8001, log_level="debug")
+    uvicorn.run("main:app", host="0.0.0.0", port=8001, log_level="debug", reload=True)
