@@ -1,8 +1,9 @@
-from fastapi import FastAPI, APIRouter, Query
+from fastapi import FastAPI, APIRouter, Query, HTTPException
 
-from typing import Optional
+from typing import Optional, Any
+
 from app.schemas import RecipeSearchResults, Recipe, RecipeCreate
-from app.receipe_data import RECIPES
+from app.recipe_data import RECIPES
 
 
 app = FastAPI(title="Recipe API", openapi_url="/openapi.json")
@@ -18,23 +19,29 @@ def root() -> dict:
     return {"msg": "Hello, World!"}
 
 
+# Updated with error handling
+# https://fastapi.tiangolo.com/tutorial/handling-errors/
 @api_router.get("/recipe/{recipe_id}", status_code=200, response_model=Recipe)
-def fetch_recipe(*, recipe_id: int) -> dict:
+def fetch_recipe(*, recipe_id: int) -> Any:
     """
     Fetch a single recipe by ID
     """
-
     result = [recipe for recipe in RECIPES if recipe["id"] == recipe_id]
-    if result:
-        return result[0]
+    if not result:
+        # the exception is raised, not returned - you will get a validation
+        # error otherwise.
+        raise HTTPException(
+            status_code=404, detail=f"Recipe with ID {recipe_id} not found"
+        )
 
+    return result[0]
 
 
 @api_router.get("/search/", status_code=200, response_model=RecipeSearchResults)
 def search_recipes(
     *,
     keyword: Optional[str] = Query(None, min_length=3, example="chicken"),
-    max_results: Optional[int] = 10
+    max_results: Optional[int] = 10,
 ) -> dict:
     """
     Search for recipes based on label keyword
@@ -44,11 +51,12 @@ def search_recipes(
         # based on the max_results query parameter
         return {"results": RECIPES[:max_results]}
 
-    results = filter(lambda recipe: keyword.lower() in recipe["label"].lower(), RECIPES)
+    results = filter(lambda recipe: keyword.lower()
+                     in recipe["label"].lower(), RECIPES)
     return {"results": list(results)[:max_results]}
 
 
-@api_router.post("/recipe/", status_code=200, response_model=Recipe)
+@api_router.post("/recipe/", status_code=201, response_model=Recipe)
 def create_recipe(*, recipe_in: RecipeCreate) -> dict:
     """
     Create a new recipe (in memory only)
@@ -63,6 +71,7 @@ def create_recipe(*, recipe_in: RecipeCreate) -> dict:
     RECIPES.append(recipe_entry.dict())
 
     return recipe_entry
+
 
 app.include_router(api_router)
 
