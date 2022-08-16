@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 import crud, schemas
 from db import base  # noqa: F401
 from recipe_data import RECIPES
-from db.base_class import Base
-from db.session import engine
+from db.base_class import Base # noqa: F401
+from db.session import engine  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ def init_db(db: Session) -> None:
     # Tables should be created with Alembic migrations
     # But if you don't want to use migrations, create
     # the tables un-commenting the next line
-    Base.metadata.create_all(bind=engine)
+    # Base.metadata.create_all(bind=engine)
     if FIRST_SUPERUSER:
         user = crud.user.get_by_email(db, email=FIRST_SUPERUSER)
         if not user:
