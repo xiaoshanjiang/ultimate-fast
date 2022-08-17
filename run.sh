@@ -4,8 +4,8 @@ export APP_MODULE=${APP_MODULE-app.main:app}
 export HOST=${HOST:-0.0.0.0}
 export PORT=${PORT:-8001}
 
-# add app to pythonpath
-export PYTHONPATH="${PWD}/app":$PYTHONPATH
+# export MODULE_PATH to import modules from anywhere
+export PYTHONPATH="${PWD}":$PYTHONPATH
 
 # tell python not to create __pycache__
 export PYTHONDONTWRITEBYTECODE=1

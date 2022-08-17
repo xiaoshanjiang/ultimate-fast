@@ -1,11 +1,11 @@
 import logging
 from sqlalchemy.orm import Session
 
-import crud, schemas
-from db import base  # noqa: F401
-from recipe_data import RECIPES
-from db.base_class import Base # noqa: F401
-from db.session import engine  # noqa: F401
+from app import crud, schemas
+from app.db import base  # noqa: F401
+from app.recipe_data import RECIPES
+from app.db.base_class import Base # noqa: F401
+from app.db.session import engine  # noqa: F401
 
 logger = logging.getLogger(__name__)
 

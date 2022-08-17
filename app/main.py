@@ -4,12 +4,12 @@ from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from . import crud
+from app import crud
 from app.api import deps
 from app.api.api_v1.api import api_router
 from app.core.config import settings
-from db.init_db import init_db
-from db.session import SessionLocal
+from app.db.init_db import init_db
+from app.db.session import SessionLocal
 
 BASE_PATH = Path(__file__).resolve().parent
 TEMPLATES = Jinja2Templates(directory=str(BASE_PATH / "templates"))
