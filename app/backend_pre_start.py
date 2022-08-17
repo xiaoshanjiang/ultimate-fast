@@ -1,7 +1,10 @@
 import logging
 
-from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
+from tenacity import (after_log, before_log, retry, stop_after_attempt,
+                      wait_fixed)
 
+from db.base_class import Base  # noqa: F401
+from db.session import engine  # noqa: F401
 from db.session import SessionLocal
 
 logging.basicConfig(level=logging.INFO)
@@ -17,7 +20,7 @@ wait_seconds = 1
     before=before_log(logger, logging.INFO),
     after=after_log(logger, logging.WARN),
 )
-def init() -> None:
+def test_connection() -> None:
     try:
         db = SessionLocal()
         # Try to create session to check if DB is awake
@@ -26,11 +29,26 @@ def init() -> None:
         logger.error(e)
         raise e
 
+def create_tables():
+    Base.metadata.create_all(bind=engine)
+
 
 def main() -> None:
-    logger.info("Initializing service")
-    init()
-    logger.info("Service finished initializing")
+    logger.info("Testing Connection...")
+    try:
+        test_connection()
+    except Exception as e:
+        logger.error("Connection failed: ", e)
+    else:
+        logger.info("Connected.")
+
+    logger.info("Creating tables...")
+    try:
+        create_tables()
+    except Exception as e:
+        logger.error("Failed to create tables: ", e)
+    else:
+        logger.info("Tables created.")
 
 
 if __name__ == "__main__":
