@@ -7,4 +7,7 @@ export PORT=${PORT:-8001}
 # add app to pythonpath
 export PYTHONPATH="${PWD}/app":$PYTHONPATH
 
+# tell python not to create __pycache__
+export PYTHONDONTWRITEBYTECODE=1
+
 exec uvicorn --reload --host $HOST --port $PORT "$APP_MODULE"
