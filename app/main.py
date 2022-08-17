@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, FastAPI, Request
@@ -11,10 +12,12 @@ from app.core.config import settings
 from app.db.init_db import init_db
 from app.db.session import SessionLocal
 
+
 BASE_PATH = Path(__file__).resolve().parent
 TEMPLATES = Jinja2Templates(directory=str(BASE_PATH / "templates"))
 
-root_router = APIRouter()
+
+# create the app instance
 app = FastAPI(title="Recipe API")
 
 
@@ -22,6 +25,19 @@ app = FastAPI(title="Recipe API")
 def on_startup():
     sess = SessionLocal()
     init_db(sess)
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
+
+# create a root_router instance
+root_router = APIRouter()
 
 
 @root_router.get("/", status_code=200)
@@ -39,8 +55,9 @@ def root(
     )
 
 
-app.include_router(api_router, prefix=settings.API_V1_STR)
+# include the routers
 app.include_router(root_router)
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
 if __name__ == "__main__":
