@@ -1,15 +1,24 @@
+import os
 import pathlib
-
-from pydantic import AnyHttpUrl, BaseSettings, EmailStr, validator
 from typing import List, Optional, Union
+
+from dotenv import load_dotenv
+from pydantic import AnyHttpUrl, BaseSettings, EmailStr, validator
 
 
 # Project Directories
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
+load_dotenv()
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
+    JWT_SECRET: str = os.getenv('JWT_SECRET')
+    ALGORITHM: str = "HS256"
+
+    # 60 minutes * 24 hours * 8 days = 8 days
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
+
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \
     # "http://localhost:8080", "http://local.dockertoolbox.tiangolo.com"]'
@@ -25,6 +34,7 @@ class Settings(BaseSettings):
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = "sqlite:///example.db"
     FIRST_SUPERUSER: EmailStr = "admin@recipeapi.com"
+    FIRST_SUPERUSER_PW: str = os.getenv('FIRST_SUPERUSER_PW')
 
     class Config:
         case_sensitive = True

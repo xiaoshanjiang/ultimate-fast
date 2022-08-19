@@ -4,11 +4,13 @@ from tenacity import (after_log, before_log, retry, stop_after_attempt,
                       wait_fixed)
 
 from db.base_class import Base  # noqa: F401
-from db.session import engine  # noqa: F401
+from db.session import engine
 from db.session import SessionLocal
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 max_tries = 60 * 5  # 5 minutes
 wait_seconds = 1
@@ -29,9 +31,6 @@ def test_connection() -> None:
         logger.error(e)
         raise e
 
-def create_tables():
-    Base.metadata.create_all(bind=engine)
-
 
 def main() -> None:
     logger.info("Testing Connection...")
@@ -44,7 +43,7 @@ def main() -> None:
 
     logger.info("Creating tables...")
     try:
-        create_tables()
+        Base.metadata.create_all(bind=engine)
     except Exception as e:
         logger.error("Failed to create tables: ", e)
     else:

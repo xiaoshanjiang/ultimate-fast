@@ -4,10 +4,13 @@ from sqlalchemy.orm import Session
 from app import crud, schemas
 from app.db import base  # noqa: F401
 from app.recipe_data import RECIPES
-from app.db.base_class import Base # noqa: F401
+from app.db.base_class import Base  # noqa: F401
 from app.db.session import engine  # noqa: F401
+from app.core.config import settings
+
 
 logger = logging.getLogger(__name__)
+
 
 FIRST_SUPERUSER = "admin@recipeapi.com"
 
@@ -28,6 +31,7 @@ def init_db(db: Session) -> None:
                 full_name="Initial Super User",
                 email=FIRST_SUPERUSER,
                 is_superuser=True,
+                password=settings.FIRST_SUPERUSER_PW,
             )
             user = crud.user.create(db, obj_in=user_in)  # noqa: F841
         else:
