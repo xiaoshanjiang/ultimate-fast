@@ -1,6 +1,6 @@
 from pydantic import BaseModel, HttpUrl
 
-from typing import Sequence, Optional
+from typing import Sequence
 
 
 class RecipeBase(BaseModel):
@@ -10,13 +10,19 @@ class RecipeBase(BaseModel):
 
 
 class RecipeCreate(RecipeBase):
+    label: str
+    source: str
+    url: HttpUrl
     submitter_id: int
 
 
 class RecipeUpdate(RecipeBase):
-    label: Optional[str]
-    source: Optional[str]
-    url: Optional[HttpUrl]
+    id: int
+
+
+class RecipeUpdateRestricted(BaseModel):
+    id: int
+    label: str
 
 
 # Properties shared by models stored in DB
