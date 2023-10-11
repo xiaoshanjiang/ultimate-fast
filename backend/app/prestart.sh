@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
-# add app to pythonpath
-export PYTHONPATH="${PWD}":$PYTHONPATH
+# # add app to pythonpath
+# export PYTHONPATH="${PWD}":$PYTHONPATH
 
 # Let the DB start
 python3 ./app/backend_pre_start.py

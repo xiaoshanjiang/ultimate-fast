@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "ultimate-fast"
-version = "0.1.0"
+name = "app"
+version = "0.0.1"
 description = "fastapi application"
 authors = ["Xiaoshan Jiang <jasonxiaoshanjiang@gmail.com>"]
 license = "MIT"

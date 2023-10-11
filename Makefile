@@ -1,26 +1,27 @@
-linode_install:
-	# sudo apt update
-	# sudo apt install make
-	sudo apt -y upgrade
-	sudo apt -y install python3-pip
-	pip install poetry
-	poetry install
-	# poetry shell
-	# pip install Jinja2=="3.0.2"
-	# deactivate
-	sudo apt -y install nginx
-	sudo cp nginx/default.conf /etc/nginx/sites-available/fastapi_app
-	# Disable the NGINX’s default configuration file by removing its symlink
-	sudo unlink /etc/nginx/sites-enabled/default
-	sudo ln -s /etc/nginx/sites-available/fastapi_app /etc/nginx/sites-enabled/
+# Add the HEROKU_API_KEY environment variable to your system
+# (and to your CI tool env vars if running in CI)
+HEROKU_APP_NAME=fastapi-recipe-app
+HEROKU_FRONTEND_APP_NAME=fastapi-recipe-app-frontend
+COMMIT_ID=$(shell git rev-parse HEAD)
 
-linode_run:
-	# Reload the NGINX configuration file:
-	sudo nginx -s reload
-	# restart the Nginx service
-	sudo systemctl restart nginx.service
-	# The recommended configuration for proxying from Nginx is to use a UNIX domain
-	# socket between Nginx and whatever the process manager that is being used to run
-	# Uvicorn. Note that when doing this you will need run Uvicorn with --forwarded-allow-ips='*'
-	# to ensure that the domain socket is trusted as a source from which to proxy headers.
-	poetry run gunicorn --bind=unix:///tmp/uvicorn.sock -w 2 --forwarded-allow-ips='*' -k uvicorn.workers.UvicornWorker app.main:app
+
+heroku-login:
+	HEROKU_API_KEY=${HEROKU_API_KEY} heroku auth:token
+
+heroku-container-login:
+	HEROKU_API_KEY=${HEROKU_API_KEY} heroku container:login
+
+build-app-heroku: heroku-container-login
+	docker build -t registry.heroku.com/$(HEROKU_APP_NAME)/web ./backend
+
+push-app-heroku: heroku-container-login
+	docker push registry.heroku.com/$(HEROKU_APP_NAME)/web
+
+release-heroku: heroku-container-login
+	heroku container:release web --app $(HEROKU_APP_NAME)
+
+deploy-frontend-heroku: heroku-login
+	cd .. && git subtree push --prefix part-13-docker-deployment/frontend https://heroku:${HEROKU_API_KEY}@git.heroku.com/$(HEROKU_FRONTEND_APP_NAME).git main
+
+
+.PHONY: heroku-login heroku-container-login build-app-heroku push-app-heroku deploy-frontend-heroku
